@@ -1,11 +1,11 @@
 package draughtsLogic
 
+import scalafx.Includes._
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Circle
-import scalafx.Includes._
 
-class Piece(x: Double, y: Double, isOponent: Boolean, isKing: Boolean) extends Circle {
+class Piece(private val x: Int, private val y: Int) extends Circle {
 
   import Board.TILE_SIZE
 
@@ -13,26 +13,27 @@ class Piece(x: Double, y: Double, isOponent: Boolean, isKing: Boolean) extends C
   centerX = TILE_SIZE * (x + 0.5)
   centerY = TILE_SIZE * (y + 0.5)
 
-  (isOponent, isKing) match {
-    case (false, false) => fill = Color.White
-    case (false, true) => fill = Color.White
-      strokeWidth = 5.0
-      stroke = Color.Black
-    case (true, false) => fill = Color.Black
-    case (true, true) => fill = Color.Black
-      strokeWidth = 5.0
-      stroke = Color.White
-  }
-
   onMouseDragged = (e: MouseEvent) => {
     centerX = e.getSceneX
     centerY = e.getSceneY
   }
 
-  onMouseReleased = (e: MouseEvent) => {
-    println("Pressed")    //TODO
+  //set piece color
+  def setColor(isOponent: Boolean, isKing: Boolean): this.type = {
+    (isOponent, isKing) match {
+      case (false, false) => fill = Color.White
+      case (false, true) => fill = Color.White
+        strokeWidth = 5.0
+        stroke = Color.Black
+      case (true, false) => fill = Color.Black
+      case (true, true) => fill = Color.Black
+        strokeWidth = 5.0
+        stroke = Color.White
+    }
+    this
   }
 
-  //def getCoord(): (Int, Int) = (centerX.toInt, centerY.toInt) TODO
+  //return piece coordinates before mouse events
+  def getCoord: Coord = Coord(x, y)
 
 }

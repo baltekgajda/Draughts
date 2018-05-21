@@ -1,6 +1,8 @@
 package draughtsLogic
 
+import scalafx.Includes._
 import scalafx.scene.Group
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.Pane
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
@@ -21,17 +23,27 @@ class Board {
 
   def addPiecesToBoard(): Unit = {
     piecesGroup.children = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield {
+      val piece: Piece = new Piece(x, y) {
+        onMouseReleased = (e: MouseEvent) => {
+          val mouseCoord = Coord((e.getSceneX / TILE_SIZE).toInt, (e.getSceneY / TILE_SIZE).toInt)
+          performPieceMove(getCoord, mouseCoord)
+        }
+      }
+
       boardMatrix(x)(y) match {
-        case -2 => Some(new Piece(x, y, true, true))
-        case -1 => Some(new Piece(x, y, true, false))
-        case 1 => Some(new Piece(x, y, false, false))
-        case 2 => Some(new Piece(x, y, false, true))
+        case -2 => Some(piece.setColor(true, true))
+        case -1 => Some(piece.setColor(true, false))
+        case 1 => Some(piece.setColor(false, false))
+        case 2 => Some(piece.setColor(false, true))
         case 0 => None
       }
     }).flatten
   }
-}
 
+  def performPieceMove(oldCoord: Coord, newCoord: Coord): Unit = {
+    println("Perform piece move")
+  }
+}
 
 object Board {
 
