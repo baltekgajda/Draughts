@@ -24,9 +24,10 @@ class Board {
   def addPiecesToBoard(): Unit = {
     piecesGroup.children = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield {
       val piece: Piece = new Piece(x, y) {
+
         onMouseReleased = (e: MouseEvent) => {
           val mouseCoord = Coord((e.getSceneX / TILE_SIZE).toInt, (e.getSceneY / TILE_SIZE).toInt)
-          performPieceMove(getCoord, mouseCoord)
+          performPieceMove(getMoveSequence :+ mouseCoord)
         }
       }
 
@@ -40,8 +41,24 @@ class Board {
     }).flatten
   }
 
-  def performPieceMove(oldCoord: Coord, newCoord: Coord): Unit = {
-    println("Perform piece move")
+  def performPieceMove(pieceMoveSequence: List[Coord]): Unit = {
+    val boardMoves = Board.getBoardMoves(boardMatrix, false)
+    if (boardMoves.isEmpty) {
+      //TODO what happens when there is no possible moves
+      println("no possible moves")
+    }
+    else if (boardMoves.contains(pieceMoveSequence)) {
+      //TODO add when move is not full - there is still one or more kills to perform
+      println("successful full move")
+    }
+    else if (partlyContains(boardMoves, pieceMoveSequence)) {
+      //TODO continue kill
+      println("partly contains")
+    }
+    else {
+      println("abort move")
+      addPiecesToBoard()
+    }
   }
 }
 
@@ -49,6 +66,32 @@ object Board {
 
   val BOARD_SIZE = 8
   val TILE_SIZE = 50
+
+  //get list of possible moves
+  def getBoardMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
+    val killsMovesList = getBoardKillMoves(boardMatrix, isOponent)
+    if (killsMovesList.nonEmpty)
+      killsMovesList
+    else
+      getBoardNotKillMoves(boardMatrix, isOponent)
+  }
+
+  private def getBoardNotKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
+    //TODO
+    val list: List[Coord] = List[Coord]() :+ Coord(1, 2) :+ Coord(1, 4)
+    println(list)
+    List[List[Coord]]() :+ list
+  }
+
+  private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
+    //TODO
+    List[List[Coord]]()
+  }
+
+  def partlyContains(boardMoves: List[List[Coord]], moveSequence: List[Coord]): Boolean = {
+    //TODO
+    false
+  }
 
   //creates matrix for a new game
   private def initializeBoardMatrix(): Array[Array[Int]] = {
