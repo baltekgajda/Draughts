@@ -1,3 +1,21 @@
 package draughtsLogic
 
-case class Coord(x: Int, y: Int) {}
+import scala.math.abs
+
+case class Coord(x: Int, y: Int) {
+
+  def isInsideBoard(boardSize: Int): Boolean = {
+    if (x < 0 || x >= boardSize || y < 0 || y >= boardSize)
+      false
+    else
+      true
+  }
+
+  def normalize(): Coord = {
+    Coord(if (x != 0) x / abs(x) else 0, if (y != 0) y / abs(y) else 0)
+  }
+
+  def add(coord: Coord): Coord = {
+    Coord(x + coord.x, y + coord.y)
+  }
+}
