@@ -32,7 +32,8 @@ class Board {
 
         onMouseReleased = (e: MouseEvent) => {
           val mouseCoord = Coord((e.getSceneX / TILE_SIZE).toInt, (e.getSceneY / TILE_SIZE).toInt)
-          performPieceMove(getMoveSequence :+ mouseCoord)
+          if (!performPieceMove(getMoveSequence :+ mouseCoord))
+            addToMoveSequence(mouseCoord)
         }
       }
 
@@ -46,30 +47,34 @@ class Board {
     }).flatten
   }
 
-  private def performPieceMove(pieceMoveSequence: List[Coord]): Unit = {
+  //returns true when full move or abort or no possible moves, false when move is not done
+  private def performPieceMove(pieceMoveSequence: List[Coord]): Boolean = {
     val boardMoves = Board.getBoardMoves(boardMatrix, isOp)
-    if (isOp)
-      isOp = false
-    else
-      isOp = true
 
     if (boardMoves.isEmpty) {
       //TODO what happens when there is no possible moves
       addPiecesToBoard()
       println("no possible moves")
+      true
     }
     else if (boardMoves.contains(pieceMoveSequence)) {
       println("perform full move")
       updateBoard(pieceMoveSequence)
       addPiecesToBoard()
+      if (isOp)
+        isOp = false
+      else
+        isOp = true
+      true
     }
     else if (partlyContains(boardMoves, pieceMoveSequence)) {
-      //TODO continue kill
       println("partly contains move")
+      false
     }
     else {
       println("abort move")
       addPiecesToBoard()
+      true
     }
   }
 
@@ -81,13 +86,20 @@ class Board {
     @tailrec
     def updateTile(moveSeq: List[Coord]): Unit = {
       if (moveSeq.length > 1) {
+        //TODO doesnt work - should delete all killed
         boardMatrix(moveSeq.head.x)(moveSeq.head.y) = 0
         updateTile(moveSeq.tail)
       }
     }
 
     updateTile(moveSequence)
-    boardMatrix(moveSequence.last.x)(moveSequence.last.y) = pieceValue
+
+    if (moveSequence.last.y == 0 && pieceValue == 1)
+      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = 2
+    else if (moveSequence.last.y == BOARD_SIZE - 1 && pieceValue == -1)
+      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = -2
+    else
+      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = pieceValue
   }
 }
 
@@ -154,7 +166,7 @@ object Board {
 
     def getKingsMovesList(playerState: Int): List[List[Coord]] = {
       //na x: od -(BOARD_SIZE-1) do (BOARD_SIZE-1)
-      //na y to samo 
+      //na y to samo
       List[List[Coord]]()
     }
 

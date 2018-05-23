@@ -43,4 +43,5 @@ class Piece(private val x: Int, private val y: Int) extends Circle {
   //returns current move sequence as immutable list
   def getMoveSequence: List[Coord] = moveSequence.toList
 
+  def addToMoveSequence(coord: Coord): Unit = moveSequence += coord
 }
