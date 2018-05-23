@@ -139,23 +139,28 @@ object Board {
     val playerDirection: Int = if (isOponent) 1 else -1
 
     //returns list of for instance possible left moves
-    def getDirectionalMovesList(xTranslation: Int, yTranslation: Int): List[List[Coord]] = {
+    def getDirectionalMovesList(xTranslation: Int, yTranslation: Int, playerState: Int): List[List[Coord]] = {
       (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield {
-        if (boardMatrix(x)(y) == playerStates._1) {
+        if (boardMatrix(x)(y) == playerState) {
           if (canMoveDiagonally(Coord(x, y), Coord(x + xTranslation, y + playerDirection * yTranslation)))
             Some(List(Coord(x, y), Coord(x + xTranslation, y + playerDirection * yTranslation)))
           else
             None
-        } else if (boardMatrix(x)(y) == playerStates._2) {
-          None
-        }
-        else
+        } else
           None
       }
         ).flatten.filter(_.nonEmpty).toList
     }
 
-    getDirectionalMovesList(1, 1) ++ getDirectionalMovesList(-1, 1)
+    def getKingsMovesList(playerState: Int): List[List[Coord]] = {
+      //na x: od -(BOARD_SIZE-1) do (BOARD_SIZE-1)
+      //na y to samo 
+      List[List[Coord]]()
+    }
+
+    val normalPiecesMoves = getDirectionalMovesList(1, 1, playerStates._1) ++ getDirectionalMovesList(-1, 1, playerStates._1)
+    val kingPiecesMoves = getKingsMovesList(playerStates._2)
+    normalPiecesMoves ++ kingPiecesMoves
   }
 
   private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]]
