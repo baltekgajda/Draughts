@@ -52,7 +52,7 @@ class Board {
     val boardMoves = Board.getBoardMoves(boardMatrix, isOp)
 
     if (boardMoves.isEmpty) {
-      //TODO what happens when there is no possible moves
+      //TODO what happens when there is no possible moves (pat or one player won)
       addPiecesToBoard()
       println("no possible moves")
       true
@@ -120,7 +120,8 @@ object Board {
   //TODO
   private def getBoardNonKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
 
-    def canMoveDiagonally(oldCoords: Coord, newCoords: Coord): Boolean = {
+    //returns empty list when cannot move diagonally and move list when move is possible
+    def canMoveDiagonally(oldCoords: Coord, newCoords: Coord): List[Coord] = {
 
       val unitCoord = Coord(newCoords.x - oldCoords.x, newCoords.y - oldCoords.y).normalize()
 
@@ -134,7 +135,7 @@ object Board {
           isTileEmpty(coord.add(unitCoord))
       }
 
-      if (oldCoords.isInsideBoard(BOARD_SIZE) && newCoords.isInsideBoard(BOARD_SIZE)) {
+      val canMove: Boolean = if (oldCoords.isInsideBoard(BOARD_SIZE) && newCoords.isInsideBoard(BOARD_SIZE)) {
         //has to be diagonal, newCoords has to be empty
         if ((newCoords.x - oldCoords.x).abs != (newCoords.y - oldCoords.y).abs || boardMatrix(newCoords.x)(newCoords.y) != 0)
           false
@@ -144,40 +145,47 @@ object Board {
       }
       else
         false
+
+      if (canMove)
+        List(oldCoords, newCoords)
+      else
+        List()
     }
 
     //one if normal piece, two if piece is a king
     val playerStates: (Int, Int) = if (isOponent) (-1, -2) else (1, 2)
     val playerDirection: Int = if (isOponent) 1 else -1
 
-    //returns list of for instance possible left moves
-    def getDirectionalMovesList(xTranslation: Int, yTranslation: Int, playerState: Int): List[List[Coord]] = {
-      (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield {
-        if (boardMatrix(x)(y) == playerState) {
-          if (canMoveDiagonally(Coord(x, y), Coord(x + xTranslation, y + playerDirection * yTranslation)))
-            Some(List(Coord(x, y), Coord(x + xTranslation, y + playerDirection * yTranslation)))
-          else
-            None
-        } else
-          None
+    def getKingsMovesList(pieceCoord: Coord): List[List[Coord]] = {
+
+      // @tailrec
+      def getAllDirectionalMoves(unit: Coord, piece: Coord): List[List[Coord]] = {
+
+        if (!piece.isInsideBoard(BOARD_SIZE))
+          List()
+        else
+          (List(canMoveDiagonally(pieceCoord, piece.add(unit))) ++ getAllDirectionalMoves(unit, piece.add(unit))).filter(_.nonEmpty)
       }
-        ).flatten.filter(_.nonEmpty).toList
+
+      getAllDirectionalMoves(Coord(-1, -1), pieceCoord) ++ getAllDirectionalMoves(Coord(-1, 1),
+        pieceCoord) ++ getAllDirectionalMoves(Coord(1, -1), pieceCoord) ++ getAllDirectionalMoves(Coord(1, 1), pieceCoord)
     }
 
-    def getKingsMovesList(playerState: Int): List[List[Coord]] = {
-      //na x: od -(BOARD_SIZE-1) do (BOARD_SIZE-1)
-      //na y to samo
-      List[List[Coord]]()
-    }
+    val list: List[List[Coord]] = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
+      if (boardMatrix(x)(y) == playerStates._1)
+        List(canMoveDiagonally(Coord(x, y), Coord(x + 1, y + playerDirection)), canMoveDiagonally(Coord(x, y), Coord(x - 1, y + playerDirection))).filter(_.nonEmpty)
+      else if (boardMatrix(x)(y) == playerStates._2) {
+        getKingsMovesList(Coord(x, y))
+      }
+      else
+        List()
+      ).reduce(_ ++ _)
 
-    val normalPiecesMoves = getDirectionalMovesList(1, 1, playerStates._1) ++ getDirectionalMovesList(-1, 1, playerStates._1)
-    val kingPiecesMoves = getKingsMovesList(playerStates._2)
-    normalPiecesMoves ++ kingPiecesMoves
+    println(list)
+    list
   }
 
-  private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]]
-
-  = {
+  private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
     //TODO
     List[List[Coord]]()
   }
@@ -194,7 +202,7 @@ object Board {
     (for (x <- 0 until BOARD_SIZE) yield
       (for (y <- 0 until BOARD_SIZE) yield
         if (y < ((BOARD_SIZE - 2) / 2) && (x + y) % 2 != 0)
-          -1
+          -2
         else if (y > ((BOARD_SIZE - 2) / 2 + 1) && (x + y) % 2 != 0)
           1
         else
