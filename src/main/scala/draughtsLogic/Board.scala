@@ -218,8 +218,7 @@ object Board {
 
   private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
     //TODO
-    //List[List[Coord]]()
-    List(List(Coord(0, 5), Coord(2, 3), Coord(3, 4)))
+    List[List[Coord]]()
   }
 
   def partlyContains(boardMoves: List[List[Coord]], moveSequence: List[Coord]): Boolean = {

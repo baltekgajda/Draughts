@@ -1,1 +1,12 @@
+### IntelliJ IDEA ###
 .idea
+*.iws
+*.iml
+*.ipr
+*/target/*
+/bin/
+/.cache-main
+/.classpath
+/.project
+/target
+/.settings
