@@ -44,4 +44,9 @@ class Piece(private val x: Int, private val y: Int) extends Circle {
   def getMoveSequence: List[Coord] = moveSequence.toList
 
   def addToMoveSequence(coord: Coord): Unit = moveSequence += coord
+
+  def setPosition(coord: Coord): Unit = {
+    centerX = TILE_SIZE * (coord.x + 0.5)
+    centerY = TILE_SIZE * (coord.y + 0.5)
+  }
 }

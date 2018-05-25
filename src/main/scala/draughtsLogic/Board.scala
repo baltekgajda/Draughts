@@ -29,13 +29,15 @@ class Board {
   }
 
   def addPiecesToBoard(): Unit = {
-    piecesGroup.children = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield {
+    piecesGroup.children = (for (y <- 0 until BOARD_SIZE; x <- 0 until BOARD_SIZE) yield {
       val piece: Piece = new Piece(x, y) {
 
         onMouseReleased = (e: MouseEvent) => {
           val mouseCoord = Coord((e.getSceneX / TILE_SIZE).toInt, (e.getSceneY / TILE_SIZE).toInt)
-          if (!performPieceMove(getMoveSequence :+ mouseCoord))
+          if (!performPieceMove(getMoveSequence :+ mouseCoord)) {
             addToMoveSequence(mouseCoord)
+            setPosition(mouseCoord)
+          }
         }
       }
 
@@ -130,7 +132,7 @@ class Board {
 
 object Board {
 
-  val BOARD_SIZE = 4
+  val BOARD_SIZE = 8
   val TILE_SIZE = 50
 
   //get list of possible moves
@@ -216,24 +218,29 @@ object Board {
 
   private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
     //TODO
-    List[List[Coord]]()
+    //List[List[Coord]]()
+    List(List(Coord(0, 5), Coord(2, 3), Coord(3, 4)))
   }
 
   def partlyContains(boardMoves: List[List[Coord]], moveSequence: List[Coord]): Boolean = {
-    //TODO
-    val moveLength = moveSequence.length
 
-    for (i <- boardMoves) {
-      if (i.length > moveLength)
+    @tailrec
+    def ifListPartlyContains(list: List[List[Coord]]): Boolean = {
+      if (list.isEmpty)
         false
+      else {
+        if (list.head.containsSlice(moveSequence))
+          true
+        else
+          ifListPartlyContains(list.tail)
+      }
     }
-    false
+
+    ifListPartlyContains(boardMoves)
   }
 
   //creates matrix for a new game
-  private def initializeBoardMatrix(): Array[Array[Int]]
-
-  = {
+  private def initializeBoardMatrix(): Array[Array[Int]] = {
     (for (x <- 0 until BOARD_SIZE) yield
       (for (y <- 0 until BOARD_SIZE) yield
         if (y < ((BOARD_SIZE - 2) / 2) && (x + y) % 2 != 0)
