@@ -84,16 +84,25 @@ class Board {
     val pieceValue = boardMatrix(moveSequence.head.x)(moveSequence.head.y)
 
     @tailrec
-    def updateTile(moveSeq: List[Coord]): Unit = {
-      if (moveSeq.length > 1) {
-        //TODO doesnt work - should delete all killed
-        boardMatrix(moveSeq.head.x)(moveSeq.head.y) = 0
-        updateTile(moveSeq.tail)
+    def removePiece(deleteCoord: Coord, endCoord: Coord, unitCoord: Coord): Unit = {
+      if (deleteCoord != endCoord) {
+        boardMatrix(deleteCoord.x)(deleteCoord.y) = 0
+        removePiece(deleteCoord.add(unitCoord), endCoord, unitCoord)
       }
     }
 
-    updateTile(moveSequence)
+    @tailrec
+    def updateTiles(moveSeq: List[Coord]): Unit = {
+      if (moveSeq.length > 1) {
+        val unitCoord = Coord(moveSeq.tail.head.x - moveSeq.head.x, moveSeq.tail.head.y - moveSeq.head.y).normalize()
+        removePiece(moveSeq.head, moveSeq.tail.head, unitCoord)
+        updateTiles(moveSeq.tail)
+      }
+    }
 
+    updateTiles(moveSequence)
+
+    //change piece to king
     if (moveSequence.last.y == 0 && pieceValue == 1)
       boardMatrix(moveSequence.last.x)(moveSequence.last.y) = 2
     else if (moveSequence.last.y == BOARD_SIZE - 1 && pieceValue == -1)
@@ -156,24 +165,28 @@ object Board {
     val playerStates: (Int, Int) = if (isOponent) (-1, -2) else (1, 2)
     val playerDirection: Int = if (isOponent) 1 else -1
 
+    def getNormalPieceMovesList(pieceCoord: Coord): List[List[Coord]] =
+      List(canMoveDiagonally(pieceCoord, pieceCoord.add(Coord(1, playerDirection))),
+        canMoveDiagonally(pieceCoord, pieceCoord.add(Coord(-1, playerDirection)))).filter(_.nonEmpty)
+
     def getKingsMovesList(pieceCoord: Coord): List[List[Coord]] = {
 
-      // @tailrec
-      def getAllDirectionalMoves(unit: Coord, piece: Coord): List[List[Coord]] = {
+      @tailrec
+      def getAllDirectionalMoves(unit: Coord, piece: Coord, list: List[List[Coord]]): List[List[Coord]] = {
 
         if (!piece.isInsideBoard(BOARD_SIZE))
-          List()
+          list.filter(_.nonEmpty)
         else
-          (List(canMoveDiagonally(pieceCoord, piece.add(unit))) ++ getAllDirectionalMoves(unit, piece.add(unit))).filter(_.nonEmpty)
+          getAllDirectionalMoves(unit, piece.add(unit), list ++ List(canMoveDiagonally(pieceCoord, piece.add(unit))))
       }
 
-      getAllDirectionalMoves(Coord(-1, -1), pieceCoord) ++ getAllDirectionalMoves(Coord(-1, 1),
-        pieceCoord) ++ getAllDirectionalMoves(Coord(1, -1), pieceCoord) ++ getAllDirectionalMoves(Coord(1, 1), pieceCoord)
+      getAllDirectionalMoves(Coord(-1, -1), pieceCoord, List()) ++ getAllDirectionalMoves(Coord(-1, 1),
+        pieceCoord, List()) ++ getAllDirectionalMoves(Coord(1, -1), pieceCoord, List()) ++ getAllDirectionalMoves(Coord(1, 1), pieceCoord, List())
     }
 
     val list: List[List[Coord]] = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
       if (boardMatrix(x)(y) == playerStates._1)
-        List(canMoveDiagonally(Coord(x, y), Coord(x + 1, y + playerDirection)), canMoveDiagonally(Coord(x, y), Coord(x - 1, y + playerDirection))).filter(_.nonEmpty)
+        getNormalPieceMovesList(Coord(x, y))
       else if (boardMatrix(x)(y) == playerStates._2) {
         getKingsMovesList(Coord(x, y))
       }
@@ -223,7 +236,6 @@ object Board {
       fill = color
     }
   }
-
 }
 
 
