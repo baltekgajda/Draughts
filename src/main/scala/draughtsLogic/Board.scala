@@ -2,6 +2,8 @@ package draughtsLogic
 
 import scalafx.Includes._
 import scalafx.scene.Group
+import scalafx.scene.control.Alert.AlertType
+import scalafx.scene.control.{Alert, ButtonType}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.Pane
 import scalafx.scene.paint.Color
@@ -47,14 +49,28 @@ class Board {
     }).flatten
   }
 
+  private def endGameAlert(): Unit = {
+    val result = new Alert(AlertType.Confirmation) {
+      title = "Draughts"
+      headerText = "Game over."
+      contentText = "Start a new game?"
+    }.showAndWait()
+
+    result match {
+      case Some(ButtonType.OK) => {
+        val startBoardMatrix = initializeBoardMatrix()
+        for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield boardMatrix(x)(y) = startBoardMatrix(x)(y)
+        addPiecesToBoard()
+      }
+      case _ => System.exit(0);
+    }
+  }
+
   //returns true when full move or abort or no possible moves, false when move is not done
   private def performPieceMove(pieceMoveSequence: List[Coord]): Boolean = {
     val boardMoves = Board.getBoardMoves(boardMatrix, isOp)
-
     if (boardMoves.isEmpty) {
-      //TODO what happens when there is no possible moves (pat or one player won)
-      addPiecesToBoard()
-      println("no possible moves")
+      endGameAlert()
       true
     }
     else if (boardMoves.contains(pieceMoveSequence)) {
@@ -114,7 +130,7 @@ class Board {
 
 object Board {
 
-  val BOARD_SIZE = 8
+  val BOARD_SIZE = 4
   val TILE_SIZE = 50
 
   //get list of possible moves
@@ -205,6 +221,12 @@ object Board {
 
   def partlyContains(boardMoves: List[List[Coord]], moveSequence: List[Coord]): Boolean = {
     //TODO
+    val moveLength = moveSequence.length
+
+    for (i <- boardMoves) {
+      if (i.length > moveLength)
+        false
+    }
     false
   }
 
@@ -215,7 +237,7 @@ object Board {
     (for (x <- 0 until BOARD_SIZE) yield
       (for (y <- 0 until BOARD_SIZE) yield
         if (y < ((BOARD_SIZE - 2) / 2) && (x + y) % 2 != 0)
-          -2
+          -1
         else if (y > ((BOARD_SIZE - 2) / 2 + 1) && (x + y) % 2 != 0)
           1
         else
