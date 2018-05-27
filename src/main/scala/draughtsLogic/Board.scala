@@ -78,7 +78,7 @@ class Board {
       addPiecesToBoard()
 
       //oponent move
-      val oponentMoveSequence = Minimax(boardMatrix, 5).getOponentMoveSequence() //TODO add game over alert
+      val oponentMoveSequence = Minimax(boardMatrix, 5).getOponentMoveSequence //TODO add game over alert
       updateBoard(boardMatrix, oponentMoveSequence)
       addPiecesToBoard()
       true
@@ -93,9 +93,7 @@ class Board {
       true
     }
   }
-
   //delete all pieces that are killed,
-
 }
 
 object Board {
@@ -178,14 +176,77 @@ object Board {
       else
         List()
       ).reduce(_ ++ _)
-
-    println(list)
     list
   }
 
   //TODO
   private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
-    List[List[Coord]]()
+
+    //returns empty list when cannot move diagonally and move list when move is possible
+    def canKill(oldCoords: Coord, newCoords: Coord): List[Coord] = {
+
+      val unitCoord = Coord(newCoords.x - oldCoords.x, newCoords.y - oldCoords.y).normalize()
+
+      @tailrec
+      def isTileEmpty(coord: Coord): Boolean = {
+        if (coord == newCoords.add(unitCoord))
+          true
+        else if (boardMatrix(coord.x)(coord.y) != 0)
+          false
+        else
+          isTileEmpty(coord.add(unitCoord))
+      }
+
+      val canMove: Boolean = if (oldCoords.isInsideBoard(BOARD_SIZE) && newCoords.isInsideBoard(BOARD_SIZE)) {
+        //has to be diagonal, newCoords has to be empty
+        if ((newCoords.x - oldCoords.x).abs != (newCoords.y - oldCoords.y).abs || boardMatrix(newCoords.x)(newCoords.y) != 0)
+          false
+        else {
+          isTileEmpty(oldCoords.add(unitCoord))
+        }
+      }
+      else
+        false
+
+      if (canMove)
+        List(oldCoords, newCoords)
+      else
+        List()
+    }
+
+    //one if normal piece, two if piece is a king
+    val playerStates: (Int, Int) = if (isOponent) (-1, -2) else (1, 2)
+    val playerDirection: Int = if (isOponent) 1 else -1
+
+    def getNormalPieceKillMovesList(pieceCoord: Coord): List[List[Coord]] =
+      List(canKill(pieceCoord, pieceCoord.add(Coord(2, 2 * playerDirection))),
+        canKill(pieceCoord, pieceCoord.add(Coord(-2, 2 * playerDirection)))).filter(_.nonEmpty)
+
+    def getKingsKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
+
+      @tailrec
+      def getAllDirectionalKillMoves(unit: Coord, piece: Coord, list: List[List[Coord]]): List[List[Coord]] = {
+
+        if (!piece.isInsideBoard(BOARD_SIZE))
+          list.filter(_.nonEmpty)
+        else
+          getAllDirectionalKillMoves(unit, piece.add(unit), list ++ List(canKill(pieceCoord, piece.add(unit))))
+      }
+
+      getAllDirectionalKillMoves(Coord(-2, -2), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(-2, 2),
+        pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(2, -2), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(2, 2), pieceCoord, List())
+    }
+
+    val list: List[List[Coord]] = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
+      if (boardMatrix(x)(y) == playerStates._1)
+        getNormalPieceKillMovesList(Coord(x, y))
+      else if (boardMatrix(x)(y) == playerStates._2) {
+        getKingsKillMovesList(Coord(x, y))
+      }
+      else
+        List()
+      ).reduce(_ ++ _)
+    list
   }
 
   def partlyContains(boardMoves: List[List[Coord]], moveSequence: List[Coord]): Boolean = {
