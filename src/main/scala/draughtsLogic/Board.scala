@@ -119,7 +119,7 @@ object Board {
 
       @tailrec
       def isTileEmpty(coord: Coord): Boolean = {
-        if (coord == newCoords.add(unitCoord))
+        if (coord == newCoords)
           true
         else if (boardMatrix(coord.x)(coord.y) != 0)
           false
@@ -182,6 +182,11 @@ object Board {
   //TODO
   private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
 
+    //one if normal piece, two if piece is a king
+    val playerStates: (Int, Int) = if (isOponent) (-1, -2) else (1, 2)
+    val oponentStates: (Int, Int) = if (!isOponent) (-1, -2) else (1, 2)
+    val playerDirection: Int = if (isOponent) 1 else -1
+
     //returns empty list when cannot move diagonally and move list when move is possible
     def canKill(oldCoords: Coord, newCoords: Coord): List[Coord] = {
 
@@ -189,9 +194,9 @@ object Board {
 
       @tailrec
       def isTileEmpty(coord: Coord): Boolean = {
-        if (coord == newCoords.add(unitCoord))
+        if (coord == newCoords)
           true
-        else if (boardMatrix(coord.x)(coord.y) != 0)
+        else if (boardMatrix(coord.x)(coord.y) != oponentStates._1 && boardMatrix(coord.x)(coord.y) != oponentStates._2)
           false
         else
           isTileEmpty(coord.add(unitCoord))
@@ -201,9 +206,8 @@ object Board {
         //has to be diagonal, newCoords has to be empty
         if ((newCoords.x - oldCoords.x).abs != (newCoords.y - oldCoords.y).abs || boardMatrix(newCoords.x)(newCoords.y) != 0)
           false
-        else {
+        else
           isTileEmpty(oldCoords.add(unitCoord))
-        }
       }
       else
         false
@@ -214,13 +218,11 @@ object Board {
         List()
     }
 
-    //one if normal piece, two if piece is a king
-    val playerStates: (Int, Int) = if (isOponent) (-1, -2) else (1, 2)
-    val playerDirection: Int = if (isOponent) 1 else -1
-
     def getNormalPieceKillMovesList(pieceCoord: Coord): List[List[Coord]] =
-      List(canKill(pieceCoord, pieceCoord.add(Coord(2, 2 * playerDirection))),
-        canKill(pieceCoord, pieceCoord.add(Coord(-2, 2 * playerDirection)))).filter(_.nonEmpty)
+      List(canKill(pieceCoord, pieceCoord.add(Coord(2, 2))),
+        canKill(pieceCoord, pieceCoord.add(Coord(2, -2))),
+        canKill(pieceCoord, pieceCoord.add(Coord(-2, 2))),
+        canKill(pieceCoord, pieceCoord.add(Coord(-2, -2)))).filter(_.nonEmpty)
 
     def getKingsKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
 
@@ -246,6 +248,7 @@ object Board {
       else
         List()
       ).reduce(_ ++ _)
+    println(list)
     list
   }
 
