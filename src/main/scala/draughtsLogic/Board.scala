@@ -18,9 +18,6 @@ class Board {
   private val boardMatrix = initializeBoardMatrix()
   private val piecesGroup = new Group()
 
-  //TODO to delete
-  var isOp: Boolean = false
-
   def renderEmptyBoard(): Pane = {
     new Pane {
       children = for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield createTile(x, y)
@@ -70,19 +67,20 @@ class Board {
 
   //returns true when full move or abort or no possible moves, false when move is not done
   private def performPieceMove(pieceMoveSequence: List[Coord]): Boolean = {
-    val boardMoves = Board.getBoardMoves(boardMatrix, isOp)
+    val boardMoves = Board.getBoardMoves(boardMatrix, false)
     if (boardMoves.isEmpty) {
       endGameAlert()
       true
     }
     else if (boardMoves.contains(pieceMoveSequence)) {
       println("perform full move")
-      updateBoard(pieceMoveSequence)
+      updateBoard(boardMatrix, pieceMoveSequence)
       addPiecesToBoard()
-      if (isOp)
-        isOp = false
-      else
-        isOp = true
+
+      //oponent move
+      val oponentMoveSequence = Minimax(boardMatrix, 5).getOponentMoveSequence() //TODO add game over alert
+      updateBoard(boardMatrix, oponentMoveSequence)
+      addPiecesToBoard()
       true
     }
     else if (partlyContains(boardMoves, pieceMoveSequence)) {
@@ -97,37 +95,7 @@ class Board {
   }
 
   //delete all pieces that are killed,
-  private def updateBoard(moveSequence: List[Coord]): Unit = {
 
-    val pieceValue = boardMatrix(moveSequence.head.x)(moveSequence.head.y)
-
-    @tailrec
-    def removePiece(deleteCoord: Coord, endCoord: Coord, unitCoord: Coord): Unit = {
-      if (deleteCoord != endCoord) {
-        boardMatrix(deleteCoord.x)(deleteCoord.y) = 0
-        removePiece(deleteCoord.add(unitCoord), endCoord, unitCoord)
-      }
-    }
-
-    @tailrec
-    def updateTiles(moveSeq: List[Coord]): Unit = {
-      if (moveSeq.length > 1) {
-        val unitCoord = Coord(moveSeq.tail.head.x - moveSeq.head.x, moveSeq.tail.head.y - moveSeq.head.y).normalize()
-        removePiece(moveSeq.head, moveSeq.tail.head, unitCoord)
-        updateTiles(moveSeq.tail)
-      }
-    }
-
-    updateTiles(moveSequence)
-
-    //change piece to king
-    if (moveSequence.last.y == 0 && pieceValue == 1)
-      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = 2
-    else if (moveSequence.last.y == BOARD_SIZE - 1 && pieceValue == -1)
-      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = -2
-    else
-      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = pieceValue
-  }
 }
 
 object Board {
@@ -144,7 +112,6 @@ object Board {
       getBoardNonKillMoves(boardMatrix, isOponent)
   }
 
-  //TODO
   private def getBoardNonKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
 
     //returns empty list when cannot move diagonally and move list when move is possible
@@ -216,8 +183,8 @@ object Board {
     list
   }
 
+  //TODO
   private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
-    //TODO
     List[List[Coord]]()
   }
 
@@ -236,6 +203,64 @@ object Board {
     }
 
     ifListPartlyContains(boardMoves)
+  }
+
+  def updateBoard(boardMatrix: Array[Array[Int]], moveSequence: List[Coord]): Unit = {
+
+    val pieceValue = boardMatrix(moveSequence.head.x)(moveSequence.head.y)
+
+    @tailrec
+    def removePiece(deleteCoord: Coord, endCoord: Coord, unitCoord: Coord): Unit = {
+      if (deleteCoord != endCoord) {
+        boardMatrix(deleteCoord.x)(deleteCoord.y) = 0
+        removePiece(deleteCoord.add(unitCoord), endCoord, unitCoord)
+      }
+    }
+
+    @tailrec
+    def updateTiles(moveSeq: List[Coord]): Unit = {
+      if (moveSeq.length > 1) {
+        val unitCoord = Coord(moveSeq.tail.head.x - moveSeq.head.x, moveSeq.tail.head.y - moveSeq.head.y).normalize()
+        removePiece(moveSeq.head, moveSeq.tail.head, unitCoord)
+        updateTiles(moveSeq.tail)
+      }
+    }
+
+    updateTiles(moveSequence)
+
+    //change piece to king
+    if (moveSequence.last.y == 0 && pieceValue == 1)
+      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = 2
+    else if (moveSequence.last.y == BOARD_SIZE - 1 && pieceValue == -1)
+      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = -2
+    else
+      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = pieceValue
+  }
+
+  def isGameOver(boardMatrix: Array[Array[Int]]): Boolean = {
+    val initial = (0, 0)
+    val minMax = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield boardMatrix(x)(y)).foldLeft(initial) { (acc, x) =>
+      if (x < acc._1) (x, acc._2)
+      else if (x > acc._2) (acc._1, x)
+      else acc
+    }
+    if (minMax._1 == 0 || minMax._2 == 0)
+      true
+    else false
+  }
+
+  def getPiecesCount(boardMatrix: Array[Array[Int]], isOponent: Boolean): Int = {
+    val initial = (0, 0)
+    val pieceCount = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield boardMatrix(x)(y)).foldLeft(initial) { (acc, x) =>
+      if (x < 0) (acc._1 + 1, acc._2)
+      else if (x > 0) (acc._1, acc._2 + 1)
+      else acc
+    }
+
+    if (isOponent)
+      pieceCount._1
+    else
+      pieceCount._2
   }
 
   //creates matrix for a new game
@@ -263,6 +288,14 @@ object Board {
       height = TILE_SIZE
       fill = color
     }
+  }
+
+  def copyBoard(board: Array[Array[Int]]): Array[Array[Int]] = {
+    (for (x <- 0 until BOARD_SIZE) yield
+      (for (y <- 0 until BOARD_SIZE) yield
+        board(x)(y)
+        ).toArray
+      ).toArray
   }
 }
 
