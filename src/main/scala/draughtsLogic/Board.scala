@@ -93,6 +93,7 @@ class Board {
       true
     }
   }
+
   //delete all pieces that are killed,
 }
 
@@ -183,8 +184,8 @@ object Board {
   private def getBoardKillMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
 
     //one if normal piece, two if piece is a king
-    val playerStates: (Int, Int) = if (isOponent) (-1, -2) else (1, 2)
-    val oponentStates: (Int, Int) = if (!isOponent) (-1, -2) else (1, 2)
+    val playerStates = if (isOponent) (-1, -2) else (1, 2)
+    val oponentStates = if (!isOponent) (-1, -2) else (1, 2)
     val playerDirection: Int = if (isOponent) 1 else -1
 
     //returns empty list when cannot move diagonally and move list when move is possible
@@ -193,13 +194,21 @@ object Board {
       val unitCoord = Coord(newCoords.x - oldCoords.x, newCoords.y - oldCoords.y).normalize()
 
       @tailrec
-      def isTileEmpty(coord: Coord): Boolean = {
+      //todo dodac wartosci domyslne w niektorych
+      def isOnePieceToKill(coord: Coord, killPieceFound: Boolean = false): Boolean = {
         if (coord == newCoords)
-          true
-        else if (boardMatrix(coord.x)(coord.y) != oponentStates._1 && boardMatrix(coord.x)(coord.y) != oponentStates._2)
-          false
-        else
-          isTileEmpty(coord.add(unitCoord))
+          killPieceFound
+        else {
+          boardMatrix(coord.x)(coord.y) match {
+            case oponentStates._1 | oponentStates._2 =>
+              if (!killPieceFound)
+                isOnePieceToKill(coord.add(unitCoord), !killPieceFound)
+              else
+                false
+            case playerStates._1 | playerStates._2 => false
+            case 0 => isOnePieceToKill(coord.add(unitCoord), killPieceFound)
+          }
+        }
       }
 
       val canMove: Boolean = if (oldCoords.isInsideBoard(BOARD_SIZE) && newCoords.isInsideBoard(BOARD_SIZE)) {
@@ -207,7 +216,7 @@ object Board {
         if ((newCoords.x - oldCoords.x).abs != (newCoords.y - oldCoords.y).abs || boardMatrix(newCoords.x)(newCoords.y) != 0)
           false
         else
-          isTileEmpty(oldCoords.add(unitCoord))
+          isOnePieceToKill(oldCoords.add(unitCoord))
       }
       else
         false
@@ -229,14 +238,17 @@ object Board {
       @tailrec
       def getAllDirectionalKillMoves(unit: Coord, piece: Coord, list: List[List[Coord]]): List[List[Coord]] = {
 
+
+        //TODO usunac sprawdzanie po pierwszym pionku ktory sie pojawil
         if (!piece.isInsideBoard(BOARD_SIZE))
           list.filter(_.nonEmpty)
         else
           getAllDirectionalKillMoves(unit, piece.add(unit), list ++ List(canKill(pieceCoord, piece.add(unit))))
       }
 
-      getAllDirectionalKillMoves(Coord(-2, -2), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(-2, 2),
-        pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(2, -2), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(2, 2), pieceCoord, List())
+      //TODO nie wiem czy nie -2, 2 pozamieniac
+      getAllDirectionalKillMoves(Coord(-1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(-1, 1),
+        pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, 1), pieceCoord, List())
     }
 
     val list: List[List[Coord]] = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
@@ -249,6 +261,7 @@ object Board {
         List()
       ).reduce(_ ++ _)
     println(list)
+    //TODO redukowac zeby zostaly tylko najdluzsze bicia
     list
   }
 
@@ -271,7 +284,7 @@ object Board {
 
   def updateBoard(boardMatrix: Array[Array[Int]], moveSequence: List[Coord]): Unit = {
 
-    val pieceValue = boardMatrix(moveSequence.head.x)(moveSequence.head.y)
+    val pieceCoord = boardMatrix(moveSequence.head.x)(moveSequence.head.y)
 
     @tailrec
     def removePiece(deleteCoord: Coord, endCoord: Coord, unitCoord: Coord): Unit = {
@@ -293,12 +306,12 @@ object Board {
     updateTiles(moveSequence)
 
     //change piece to king
-    if (moveSequence.last.y == 0 && pieceValue == 1)
+    if (moveSequence.last.y == 0 && pieceCoord == 1)
       boardMatrix(moveSequence.last.x)(moveSequence.last.y) = 2
-    else if (moveSequence.last.y == BOARD_SIZE - 1 && pieceValue == -1)
+    else if (moveSequence.last.y == BOARD_SIZE - 1 && pieceCoord == -1)
       boardMatrix(moveSequence.last.x)(moveSequence.last.y) = -2
     else
-      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = pieceValue
+      boardMatrix(moveSequence.last.x)(moveSequence.last.y) = pieceCoord
   }
 
   def isGameOver(boardMatrix: Array[Array[Int]]): Boolean = {
@@ -327,6 +340,14 @@ object Board {
       pieceCount._2
   }
 
+  def copyBoard(board: Array[Array[Int]]): Array[Array[Int]] = {
+    (for (x <- 0 until BOARD_SIZE) yield
+      (for (y <- 0 until BOARD_SIZE) yield
+        board(x)(y)
+        ).toArray
+      ).toArray
+  }
+
   //creates matrix for a new game
   private def initializeBoardMatrix(): Array[Array[Int]] = {
     (for (x <- 0 until BOARD_SIZE) yield
@@ -353,14 +374,5 @@ object Board {
       fill = color
     }
   }
-
-  def copyBoard(board: Array[Array[Int]]): Array[Array[Int]] = {
-    (for (x <- 0 until BOARD_SIZE) yield
-      (for (y <- 0 until BOARD_SIZE) yield
-        board(x)(y)
-        ).toArray
-      ).toArray
-  }
 }
-
 
