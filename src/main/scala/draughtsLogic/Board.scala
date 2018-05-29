@@ -189,7 +189,7 @@ object Board {
     val playerDirection: Int = if (isOponent) 1 else -1
 
     //returns empty list when cannot move diagonally and move list when move is possible
-    def canKill(oldCoords: Coord, newCoords: Coord): List[Coord] = {
+    def canKill(oldCoords: Coord, newCoords: Coord): Boolean = {
 
       val unitCoord = Coord(newCoords.x - oldCoords.x, newCoords.y - oldCoords.y).normalize()
 
@@ -211,7 +211,7 @@ object Board {
         }
       }
 
-      val canMove: Boolean = if (oldCoords.isInsideBoard(BOARD_SIZE) && newCoords.isInsideBoard(BOARD_SIZE)) {
+      if (oldCoords.isInsideBoard(BOARD_SIZE) && newCoords.isInsideBoard(BOARD_SIZE)) {
         //has to be diagonal, newCoords has to be empty
         if ((newCoords.x - oldCoords.x).abs != (newCoords.y - oldCoords.y).abs || boardMatrix(newCoords.x)(newCoords.y) != 0)
           false
@@ -220,22 +220,37 @@ object Board {
       }
       else
         false
-
-      if (canMove)
-        List(oldCoords, newCoords)
-      else
-        List()
     }
 
-    def getNormalPieceKillMovesList(pieceCoord: Coord): List[List[Coord]] =
-      List(canKill(pieceCoord, pieceCoord.add(Coord(2, 2))),
-        canKill(pieceCoord, pieceCoord.add(Coord(2, -2))),
-        canKill(pieceCoord, pieceCoord.add(Coord(-2, 2))),
-        canKill(pieceCoord, pieceCoord.add(Coord(-2, -2)))).filter(_.nonEmpty)
+    //todo co jak argument jest krotszy od 2
+    //zwraca tez odwrocone?
+    def enlargeKillSequence(revertedSeq: List[Coord]): List[List[Coord]] = {
+      //already contains that element
+      if (revertedSeq.tail.contains(revertedSeq.head))
+        List(revertedSeq.tail)
+      else if (canKill(revertedSeq.tail.head, revertedSeq.head)) {
+        val previousDirection = revertedSeq.head.subtract(revertedSeq.tail.head).normalize()
+        Coord.getOtherDirectionUnitVectors(previousDirection.negate)
+          .map(coord => revertedSeq.head.add(coord).add(coord) :: revertedSeq)
+          .map(seq => enlargeKillSequence(seq))
+          .distinct
+          .reduce(_ ++ _)
+      }
+      else
+        List(revertedSeq.tail).filter(_.length > 1) //has to be longer than one, when first use of this method, so that kill is not possible
+    }
+
+    def getNormalPieceKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
+      Coord.getAllDirectionUnitVectors
+        .map(coord => List(pieceCoord.add(coord).add(coord), pieceCoord))
+        .map(seq => enlargeKillSequence(seq))
+        .reduce(_ ++ _)
+        .map(_.reverse)
+    }
 
     def getKingsKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
 
-      @tailrec
+      /*@tailrec
       def getAllDirectionalKillMoves(unit: Coord, piece: Coord, list: List[List[Coord]]): List[List[Coord]] = {
 
 
@@ -248,15 +263,15 @@ object Board {
 
       //TODO nie wiem czy nie -2, 2 pozamieniac
       getAllDirectionalKillMoves(Coord(-1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(-1, 1),
-        pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, 1), pieceCoord, List())
+        pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, 1), pieceCoord, List())*/
+      List()
     }
 
     val list: List[List[Coord]] = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
       if (boardMatrix(x)(y) == playerStates._1)
         getNormalPieceKillMovesList(Coord(x, y))
-      else if (boardMatrix(x)(y) == playerStates._2) {
+      else if (boardMatrix(x)(y) == playerStates._2)
         getKingsKillMovesList(Coord(x, y))
-      }
       else
         List()
       ).reduce(_ ++ _)
