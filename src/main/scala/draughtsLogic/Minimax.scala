@@ -5,7 +5,7 @@ import scala.math.{max, min}
 import scala.util.Random
 
 case class Minimax(boardMatrix: Array[Array[Int]], maxDepth: Int) {
-  def getOponentMoveSequence(): List[Coord] = {
+  def getOponentMoveSequence: List[Coord] = {
     //TODO dodac jak nie ma mozliwych ruchów
     if (!Board.isGameOver(boardMatrix)) {
       val movesToChooseFrom = Board.getBoardMoves(boardMatrix, true)
@@ -17,6 +17,7 @@ case class Minimax(boardMatrix: Array[Array[Int]], maxDepth: Int) {
           Board.updateBoard(newBoard, l)
           (l, minimaxAlphaBeta(newBoard, false, maxDepth - 1, Int.MinValue, Int.MaxValue))
         }).maxBy(_._2)._1
+      //TODO dodac zeby wybieral najdluzsze bicie
     }
     else
       List() //TODO alert konca gry
