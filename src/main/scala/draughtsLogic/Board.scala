@@ -78,9 +78,13 @@ class Board {
       addPiecesToBoard()
 
       //oponent move
-      val oponentMoveSequence = Minimax(boardMatrix, 5).getOponentMoveSequence //TODO add game over alert
-      updateBoard(boardMatrix, oponentMoveSequence)
-      addPiecesToBoard()
+      val oponentMoveSequence = Minimax(boardMatrix, 1).getOponentMoveSequence //TODO add game over alert
+      if (oponentMoveSequence.isEmpty)
+        endGameAlert()
+      else {
+        updateBoard(boardMatrix, oponentMoveSequence)
+        addPiecesToBoard()
+      }
       true
     }
     else if (partlyContains(boardMoves, pieceMoveSequence)) {
@@ -94,6 +98,7 @@ class Board {
     }
   }
 
+  //TODO jak ja wygram to jest blad bo probuje zrobic drzewo ale nie moze bo nie ma pionkow
   //delete all pieces that are killed,
 }
 
@@ -223,33 +228,39 @@ object Board {
     }
 
     //todo co jak argument jest krotszy od 2
-    //zwraca tez odwrocone?
+    //returns reversed sequence - can contain kills x,y and x,y,z
     def enlargeKillSequence(revertedSeq: List[Coord]): List[List[Coord]] = {
-      //already contains that element
-      if (revertedSeq.tail.contains(revertedSeq.head))
-        List(revertedSeq.tail)
-      else if (canKill(revertedSeq.tail.head, revertedSeq.head)) {
+      if (!revertedSeq.tail.contains(revertedSeq.head) && canKill(revertedSeq.tail.head, revertedSeq.head)) {
         val previousDirection = revertedSeq.head.subtract(revertedSeq.tail.head).normalize()
-        Coord.getOtherDirectionUnitVectors(previousDirection.negate)
+        val sequences = Coord.getOtherDirectionUnitVectors(previousDirection.negate)
           .map(coord => revertedSeq.head.add(coord).add(coord) :: revertedSeq)
           .map(seq => enlargeKillSequence(seq))
           .distinct
+          .map(seq => if (seq.isEmpty) List(revertedSeq) else seq)
           .reduce(_ ++ _)
+        val maxLength = sequences.maxBy(_.length).length //only longest kill sequences
+        sequences.filter(_.length >= maxLength)
       }
       else
-        List(revertedSeq.tail).filter(_.length > 1) //has to be longer than one, when first use of this method, so that kill is not possible
+        List()
     }
 
     def getNormalPieceKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
-      Coord.getAllDirectionUnitVectors
-        .map(coord => List(pieceCoord.add(coord).add(coord), pieceCoord))
-        .map(seq => enlargeKillSequence(seq))
-        .reduce(_ ++ _)
-        .map(_.reverse)
+      val koko =
+        Coord.getAllDirectionUnitVectors
+          .map(coord => List(pieceCoord.add(coord).add(coord), pieceCoord))
+          .map(seq => enlargeKillSequence(seq))
+          .distinct
+          .map(seq => if (seq.isEmpty) List() else seq)
+          .reduce(_ ++ _)
+          .map(_.reverse)
+      println("ascsacq " + koko)
+      koko
     }
 
     def getKingsKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
 
+      getNormalPieceKillMovesList(pieceCoord)
       /*@tailrec
       def getAllDirectionalKillMoves(unit: Coord, piece: Coord, list: List[List[Coord]]): List[List[Coord]] = {
 
@@ -264,7 +275,6 @@ object Board {
       //TODO nie wiem czy nie -2, 2 pozamieniac
       getAllDirectionalKillMoves(Coord(-1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(-1, 1),
         pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, 1), pieceCoord, List())*/
-      List()
     }
 
     val list: List[List[Coord]] = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
