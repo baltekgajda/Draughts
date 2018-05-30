@@ -5,7 +5,7 @@ import scalafx.scene.Group
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Alert, ButtonType}
 import scalafx.scene.input.MouseEvent
-import scalafx.scene.layout.Pane
+import scalafx.scene.layout.{FlowPane, StackPane}
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
 
@@ -18,10 +18,19 @@ class Board {
   private val boardMatrix = initializeBoardMatrix()
   private val piecesGroup = new Group()
 
-  def renderEmptyBoard(): Pane = {
-    new Pane {
-      children = for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield createTile(x, y)
-      children.add(piecesGroup)
+  def renderEmptyBoard(): StackPane = {
+    new StackPane {
+      centerShape = true
+      minWidth = 640
+      minHeight = 640
+      val tiles = new FlowPane {
+        prefHeight = 600
+        prefWidth = 600
+        children = for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield createTile(x, y)
+      }
+
+      children = List(tiles, piecesGroup)
+      //  children.add(piecesGroup)
     }
   }
 
@@ -73,26 +82,24 @@ class Board {
       true
     }
     else if (boardMoves.contains(pieceMoveSequence)) {
-      println("perform full move")
       updateBoard(boardMatrix, pieceMoveSequence)
       addPiecesToBoard()
 
       //oponent move
-      val oponentMoveSequence = Minimax(boardMatrix, 1).getOponentMoveSequence //TODO add game over alert
+      val oponentMoveSequence = Minimax(boardMatrix, 5).getOponentMoveSequence //TODO add game over alert
       if (oponentMoveSequence.isEmpty)
         endGameAlert()
       else {
         updateBoard(boardMatrix, oponentMoveSequence)
         addPiecesToBoard()
+        if (isGameOver(boardMatrix))
+          endGameAlert()
       }
       true
     }
-    else if (partlyContains(boardMoves, pieceMoveSequence)) {
-      println("partly contains move")
+    else if (partlyContains(boardMoves, pieceMoveSequence))
       false
-    }
     else {
-      println("abort move")
       addPiecesToBoard()
       true
     }
@@ -104,8 +111,8 @@ class Board {
 
 object Board {
 
-  val BOARD_SIZE = 8
-  val TILE_SIZE = 50
+  val BOARD_SIZE = 10
+  val TILE_SIZE = 60
 
   //get list of possible moves
   def getBoardMoves(boardMatrix: Array[Array[Int]], isOponent: Boolean): List[List[Coord]] = {
@@ -191,11 +198,9 @@ object Board {
     //one if normal piece, two if piece is a king
     val playerStates = if (isOponent) (-1, -2) else (1, 2)
     val oponentStates = if (!isOponent) (-1, -2) else (1, 2)
-    val playerDirection: Int = if (isOponent) 1 else -1
 
     //returns empty list when cannot move diagonally and move list when move is possible
     def canKill(oldCoords: Coord, newCoords: Coord): Boolean = {
-
       val unitCoord = Coord(newCoords.x - oldCoords.x, newCoords.y - oldCoords.y).normalize()
 
       @tailrec
@@ -230,7 +235,7 @@ object Board {
     //todo co jak argument jest krotszy od 2
     //returns reversed sequence - can contain kills x,y and x,y,z
     def enlargeKillSequence(revertedSeq: List[Coord]): List[List[Coord]] = {
-      if (!revertedSeq.tail.contains(revertedSeq.head) && canKill(revertedSeq.tail.head, revertedSeq.head)) {
+      if (revertedSeq.length >= 2 && !revertedSeq.tail.contains(revertedSeq.head) && canKill(revertedSeq.tail.head, revertedSeq.head)) {
         val previousDirection = revertedSeq.head.subtract(revertedSeq.tail.head).normalize()
         val sequences = Coord.getOtherDirectionUnitVectors(previousDirection.negate)
           .map(coord => revertedSeq.head.add(coord).add(coord) :: revertedSeq)
@@ -246,38 +251,20 @@ object Board {
     }
 
     def getNormalPieceKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
-      val koko =
-        Coord.getAllDirectionUnitVectors
-          .map(coord => List(pieceCoord.add(coord).add(coord), pieceCoord))
-          .map(seq => enlargeKillSequence(seq))
-          .distinct
-          .map(seq => if (seq.isEmpty) List() else seq)
-          .reduce(_ ++ _)
-          .map(_.reverse)
-      println("ascsacq " + koko)
-      koko
+      Coord.getAllDirectionUnitVectors
+        .map(coord => List(pieceCoord.add(coord).add(coord), pieceCoord))
+        .map(seq => enlargeKillSequence(seq))
+        .distinct
+        .map(seq => if (seq.isEmpty) List() else seq)
+        .reduce(_ ++ _)
+        .map(_.reverse)
     }
 
     def getKingsKillMovesList(pieceCoord: Coord): List[List[Coord]] = {
-
       getNormalPieceKillMovesList(pieceCoord)
-      /*@tailrec
-      def getAllDirectionalKillMoves(unit: Coord, piece: Coord, list: List[List[Coord]]): List[List[Coord]] = {
-
-
-        //TODO usunac sprawdzanie po pierwszym pionku ktory sie pojawil
-        if (!piece.isInsideBoard(BOARD_SIZE))
-          list.filter(_.nonEmpty)
-        else
-          getAllDirectionalKillMoves(unit, piece.add(unit), list ++ List(canKill(pieceCoord, piece.add(unit))))
-      }
-
-      //TODO nie wiem czy nie -2, 2 pozamieniac
-      getAllDirectionalKillMoves(Coord(-1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(-1, 1),
-        pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, -1), pieceCoord, List()) ++ getAllDirectionalKillMoves(Coord(1, 1), pieceCoord, List())*/
     }
 
-    val list: List[List[Coord]] = (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
+    (for (x <- 0 until BOARD_SIZE; y <- 0 until BOARD_SIZE) yield
       if (boardMatrix(x)(y) == playerStates._1)
         getNormalPieceKillMovesList(Coord(x, y))
       else if (boardMatrix(x)(y) == playerStates._2)
@@ -285,9 +272,6 @@ object Board {
       else
         List()
       ).reduce(_ ++ _)
-    println(list)
-    //TODO redukowac zeby zostaly tylko najdluzsze bicia
-    list
   }
 
   def partlyContains(boardMoves: List[List[Coord]], moveSequence: List[Coord]): Boolean = {
