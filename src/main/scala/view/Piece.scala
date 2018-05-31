@@ -1,5 +1,6 @@
-package draughtsLogic
+package view
 
+import draughtsLogic.Coord
 import scalafx.Includes._
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.paint.Color
@@ -7,23 +8,27 @@ import scalafx.scene.shape.Circle
 
 import scala.collection.mutable.ListBuffer
 
-class Piece(private val x: Int, private val y: Int) extends Circle {
+case class Piece(_x: Int, _y: Int, tileSize: Double, color: Int) extends Circle {
 
-  import Board.TILE_SIZE
-
-  radius = 0.3 * TILE_SIZE
-  centerX = TILE_SIZE * (x + 0.5)
-  centerY = TILE_SIZE * (y + 0.5)
-
-  val moveSequence = ListBuffer(Coord(x, y)) //sequence of moves, important when killing pieces
-
-  onMouseDragged = (e: MouseEvent) => {
-    centerX = e.getSceneX
-    centerY = e.getSceneY
+  radius = 0.3 * tileSize
+  setPosition(Coord(_x, _y))
+  //TODO dodac enum dla typu
+  color match {
+    case -2 => setColor(true, true)
+    case -1 => setColor(true, false)
+    case 1 => setColor(false, false)
+    case 2 => setColor(false, true)
+    case 0 => visible = false
   }
 
-  //set piece color
-  def setColor(isOponent: Boolean, isKing: Boolean): this.type = {
+  val moveSequence = ListBuffer(Coord(_x, _y))
+  onMouseDragged = (e: MouseEvent) => {
+    centerX = e.getX
+    centerY = e.getY
+  }
+
+  //TODO dodac typy graczy
+  def setColor(isOponent: Boolean, isKing: Boolean): Unit = {
     (isOponent, isKing) match {
       case (false, false) => fill = Color.Brown
       case (false, true) => fill = Color.Brown
@@ -34,11 +39,7 @@ class Piece(private val x: Int, private val y: Int) extends Circle {
         strokeWidth = 5.0
         stroke = Color.Brown
     }
-    this
   }
-
-  //return piece coordinates before mouse events
-  def getCoord: Coord = Coord(x, y)
 
   //returns current move sequence as immutable list
   def getMoveSequence: List[Coord] = moveSequence.toList
@@ -46,7 +47,7 @@ class Piece(private val x: Int, private val y: Int) extends Circle {
   def addToMoveSequence(coord: Coord): Unit = moveSequence += coord
 
   def setPosition(coord: Coord): Unit = {
-    centerX = TILE_SIZE * (coord.x + 0.5)
-    centerY = TILE_SIZE * (coord.y + 0.5)
+    centerX = tileSize * (coord.x + 0.5)
+    centerY = tileSize * (coord.y + 0.5)
   }
 }
