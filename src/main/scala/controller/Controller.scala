@@ -18,16 +18,16 @@ object Controller {
       true
   }
 
+  def endGameAlert(gameScene: GameScene): Unit = {
+    gameScene.showEndGameAlert()
+  }
+
   def loadNewGame(): Unit = {
-    startApp.stage.scene = GameScene(600)
+    startApp.stage.scene = GameScene(600, 5)
   }
 
   def exitDraughts(): Unit = {
     System.exit(0)
-  }
-
-  def endGameAlert(gameScene: GameScene): Unit = {
-    gameScene.showEndGameAlert()
   }
 
   def returnToMainMenu(): Unit = {

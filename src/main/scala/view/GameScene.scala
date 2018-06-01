@@ -5,8 +5,7 @@ import draughtsLogic.Board
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, Button, ButtonType}
+import scalafx.scene.control.Button
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
@@ -53,19 +52,9 @@ case class GameScene(sceneWidth: Double, boardSize: Int = 8) extends Scene {
   content = sceneBorderPane
 
   def showEndGameAlert(): Unit = {
-    //TODO zmienic okno alertu
-    val result = new Alert(AlertType.Confirmation) {
-      title = "Draughts"
-      headerText = "Game over."
-      contentText = "Start a new game?"
-    }.showAndWait()
-
-    result match {
-      case Some(ButtonType.OK) => {
-        updatePieces(Board(boardSize))
-      }
-      case _ => System.exit(0);
-    }
+    val alert = GameScene.createButton(200, 200, "Game over")
+    alert.styleClass = List("end-game-info")
+    gameBoardStackPane.children.add(alert)
   }
 
   def updatePieces(boardMatrix: Board): Unit = {
@@ -87,8 +76,8 @@ object GameScene {
 
   //TODO dziwne rozmiary przycisku przy zmianie ilośc tiles
   def createButton(bWidth: Double, bHeight: Double, text: String): Button = new Button(text) {
-    this.minHeight = bHeight
-    this.minWidth = bWidth
+    this.prefHeight = bHeight
+    this.prefWidth = bWidth
     this.styleClass = List("tile-button")
   }
 }
