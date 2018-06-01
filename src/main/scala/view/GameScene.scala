@@ -11,7 +11,7 @@ import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
 
-case class GameScene(sceneWidth: Double, boardSize: Int = 8) extends Scene {
+case class GameScene(sceneWidth: Double, boardSize: Int = 8, treeDepth: Int = 3) extends Scene {
 
   private val tileSize = (sceneWidth - 40) / boardSize
 
@@ -21,7 +21,7 @@ case class GameScene(sceneWidth: Double, boardSize: Int = 8) extends Scene {
 
   private val gameBoardStackPane: StackPane = {
     val stackPane = new StackPane
-    stackPane.children = List(tilesPane, PiecePane(boardSize, tileSize, Board(boardSize), this))
+    stackPane.children = List(tilesPane, PiecePane(boardSize, tileSize, Board(boardSize, treeDepth), this))
     stackPane
   }
 
@@ -52,7 +52,7 @@ case class GameScene(sceneWidth: Double, boardSize: Int = 8) extends Scene {
   content = sceneBorderPane
 
   def showEndGameAlert(): Unit = {
-    val alert = GameScene.createButton(200, 200, "Game over")
+    val alert = GameScene.createButton(200, 200, "Game Over")
     alert.styleClass = List("end-game-info")
     gameBoardStackPane.children.add(alert)
   }
@@ -74,7 +74,6 @@ object GameScene {
     else Color.WhiteSmoke
   }
 
-  //TODO dziwne rozmiary przycisku przy zmianie ilośc tiles
   def createButton(bWidth: Double, bHeight: Double, text: String): Button = new Button(text) {
     this.prefHeight = bHeight
     this.prefWidth = bWidth

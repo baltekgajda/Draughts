@@ -1,6 +1,6 @@
 package controller
 
-import draughtsLogic.{Board, Coord}
+import draughtsLogic.{Board, BoardSize, Coord, Difficulty}
 import start.Start.startApp
 import view.{GameScene, MenuScene}
 
@@ -22,8 +22,12 @@ object Controller {
     gameScene.showEndGameAlert()
   }
 
-  def loadNewGame(): Unit = {
-    startApp.stage.scene = GameScene(600, 5)
+  def loadNewGame(boardSize: BoardSize.Value, difficulty: Difficulty.Value): Unit = {
+    startApp.stage.scene = GameScene(600, BoardSize.getBoardSize(boardSize), Difficulty.getTreeDepth(difficulty))
+  }
+
+  def loadNewGame(gameScene: GameScene): Unit = {
+    gameScene.updatePieces(Board(gameScene.boardSize, gameScene.treeDepth))
   }
 
   def exitDraughts(): Unit = {
@@ -32,9 +36,5 @@ object Controller {
 
   def returnToMainMenu(): Unit = {
     startApp.stage.scene = MenuScene(600, 600)
-  }
-
-  def loadNewGame(gameScene: GameScene): Unit = {
-    gameScene.updatePieces(Board(gameScene.boardSize))
   }
 }

@@ -4,11 +4,11 @@ package draughtsLogic
 //delete all pieces that are killed,
 import scala.annotation.tailrec
 
-case class Board(size: Int) {
+case class Board(size: Int, treeDepth: Int) {
 
   import Board._
 
-  val boardMatrix = initializeBoardMatrix(size)
+  val boardMatrix: Array[Array[Int]] = initializeBoardMatrix(size)
 
   //returns true when full move or abort or no possible moves, false when move is not done
   //first boolean - update?, second is game over,
@@ -20,7 +20,7 @@ case class Board(size: Int) {
     else if (boardMoves.contains(pieceMoveSequence)) {
       Board.updateBoard(boardMatrix, pieceMoveSequence)
       //oponent move
-      val oponentMoveSequence = Minimax(boardMatrix, 5).getOponentMoveSequence //TODO add game over alert
+      val oponentMoveSequence = Minimax(boardMatrix, treeDepth).getOponentMoveSequence //TODO add game over alert
       if (oponentMoveSequence.isEmpty)
         (true, true)
       else {
