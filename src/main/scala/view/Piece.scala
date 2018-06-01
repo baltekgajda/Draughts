@@ -30,7 +30,7 @@ case class Piece(_x: Int, _y: Int, tileSize: Double, color: Int) extends Circle 
   //TODO dodac typy graczy
   def setColor(isOponent: Boolean, isKing: Boolean): Unit = {
     (isOponent, isKing) match {
-      case (false, false) => fill = Color.Brown
+      case (false, false) => fill = Color.Maroon
       case (false, true) => fill = Color.Brown
         strokeWidth = 5.0
         stroke = Color.Black

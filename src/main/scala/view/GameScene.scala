@@ -12,9 +12,9 @@ import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
 
-case class GameScene(windowSize: Double, boardSize: Int = 8) extends Scene {
+case class GameScene(sceneWidth: Double, boardSize: Int = 8) extends Scene {
 
-  private val tileSize = (windowSize - 40) / boardSize
+  private val tileSize = (sceneWidth - 40) / boardSize
 
   private val tilesPane: Pane = new Pane() {
     this.children = for (x <- 0 until boardSize; y <- 0 until boardSize) yield GameScene.createTile(x, y, tileSize)
@@ -41,9 +41,9 @@ case class GameScene(windowSize: Double, boardSize: Int = 8) extends Scene {
   }
 
   private val sceneBorderPane: BorderPane = new BorderPane {
-    this.styleClass = List("game-stage")
-    this.prefHeight = windowSize + 20 + tileSize
-    this.prefWidth = windowSize
+    this.styleClass = List("game-scene")
+    this.prefHeight = sceneWidth + 20 + tileSize
+    this.prefWidth = sceneWidth
     this.padding = Insets(20, 20, 20, 20)
     this.top = gameBoardStackPane
     this.bottom = buttonsHBox

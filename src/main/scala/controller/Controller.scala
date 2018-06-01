@@ -1,7 +1,8 @@
 package controller
 
 import draughtsLogic.{Board, Coord}
-import view.GameScene
+import start.Start.startApp
+import view.{GameScene, MenuScene}
 
 object Controller {
 
@@ -17,12 +18,20 @@ object Controller {
       true
   }
 
+  def loadNewGame(): Unit = {
+    startApp.stage.scene = GameScene(600)
+  }
+
+  def exitDraughts(): Unit = {
+    System.exit(0)
+  }
+
   def endGameAlert(gameScene: GameScene): Unit = {
     gameScene.showEndGameAlert()
   }
 
   def returnToMainMenu(): Unit = {
-    println("Go to main menu")
+    startApp.stage.scene = MenuScene(600, 600)
   }
 
   def loadNewGame(gameScene: GameScene): Unit = {

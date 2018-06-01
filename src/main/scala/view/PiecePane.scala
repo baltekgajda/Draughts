@@ -8,7 +8,7 @@ import scalafx.scene.layout.Pane
 
 case class PiecePane(boardSize: Int, tileSize: Double, board: Board, gameScene: GameScene) extends Pane {
 
-  children = (for (x <- 0 until boardSize; y <- 0 until boardSize) yield {
+  children = (for (y <- 0 until boardSize; x <- 0 until boardSize) yield {
     if (board.boardMatrix(x)(y) != 0) {
       val piece = new Piece(x, y, tileSize, board.boardMatrix(x)(y)) {
         onMouseReleased = (e: MouseEvent) => {
