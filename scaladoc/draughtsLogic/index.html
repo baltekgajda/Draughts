@@ -1,0 +1,324 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title>Draughts documentation  - draughtsLogic</title>
+          <meta name="description" content="Draughts documentation - draughtsLogic" />
+          <meta name="keywords" content="Draughts documentation draughtsLogic" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../lib/jquery.js"></script>
+      <script type="text/javascript" src="../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../lib/index.js"></script>
+      <script type="text/javascript" src="../index.js"></script>
+      <script type="text/javascript" src="../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../lib/template.js"></script>
+      <script type="text/javascript" src="../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../';
+      </script>
+    
+        </head>
+        <body>
+      <div id="search">
+        <span id="doc-title">Draughts documentation<span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="index.html#_root_" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html"><span class="name">root</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.draughtsLogic" visbl="pub" class="indented1 current" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="draughtsLogic"></a><a id="draughtsLogic:draughtsLogic"></a>
+      <span class="permalink">
+      <a href="index.html#draughtsLogic" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">draughtsLogic</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li class="current-entities indented1">
+                        <a class="object" href="Board$.html" title=""></a>
+                        <a class="class" href="Board.html" title=""></a>
+                        <a href="Board.html" title="">Board</a>
+                      </li><li class="current-entities indented1">
+                        <span class="separator"></span>
+                        <a class="object" href="BoardSize$.html" title=""></a>
+                        <a href="BoardSize$.html" title="">BoardSize</a>
+                      </li><li class="current-entities indented1">
+                        <a class="object" href="Coord$.html" title=""></a>
+                        <a class="class" href="Coord.html" title=""></a>
+                        <a href="Coord.html" title="">Coord</a>
+                      </li><li class="current-entities indented1">
+                        <span class="separator"></span>
+                        <a class="object" href="Difficulty$.html" title=""></a>
+                        <a href="Difficulty$.html" title="">Difficulty</a>
+                      </li><li class="current-entities indented1">
+                        <span class="separator"></span>
+                        <a class="class" href="Minimax.html" title="Class for minimax algorithm used to control the other player"></a>
+                        <a href="Minimax.html" title="Class for minimax algorithm used to control the other player">Minimax</a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="package value">
+      <div id="definition">
+        <div class="big-circle package">p</div>
+        
+        <h1>draughtsLogic<span class="permalink">
+      <a href="../draughtsLogic/index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">draughtsLogic</span>
+      </span>
+      </h4>
+
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              
+            </ol>
+          </div>
+          
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="draughtsLogic.Board" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BoardextendsProductwithSerializable"></a><a id="Board:Board"></a>
+      <span class="permalink">
+      <a href="../draughtsLogic/index.html#BoardextendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Board.html"><span class="name">Board</span></a><span class="params">(<span name="size">size: <span class="extype" name="scala.Int">Int</span></span>, <span name="treeDepth">treeDepth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="draughtsLogic.Coord" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CoordextendsProductwithSerializable"></a><a id="Coord:Coord"></a>
+      <span class="permalink">
+      <a href="../draughtsLogic/index.html#CoordextendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Coord.html"><span class="name">Coord</span></a><span class="params">(<span name="x">x: <span class="extype" name="scala.Int">Int</span></span>, <span name="y">y: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="draughtsLogic.Minimax" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="MinimaxextendsProductwithSerializable"></a><a id="Minimax:Minimax"></a>
+      <span class="permalink">
+      <a href="../draughtsLogic/index.html#MinimaxextendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Class for minimax algorithm used to control the other player" href="Minimax.html"><span class="name">Minimax</span></a><span class="params">(<span name="boardMatrix">boardMatrix: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Int">Int</span>]]</span>, <span name="maxDepth">maxDepth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Class for minimax algorithm used to control the other player
+</p><div class="fullcomment"><div class="comment cmt"><p>Class for minimax algorithm used to control the other player
+</p></div><dl class="paramcmts block"><dt class="param">boardMatrix</dt><dd class="cmt"><p>two dimensional array holding current board state</p></dd><dt class="param">maxDepth</dt><dd class="cmt"><p>maximum depth of a tree generated by minimax algorithm</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div class="values members">
+              <h3>Value Members</h3>
+              <ol>
+                <li name="draughtsLogic.Board" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Board"></a><a id="Board:Board"></a>
+      <span class="permalink">
+      <a href="../draughtsLogic/index.html#Board" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Board$.html"><span class="name">Board</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="draughtsLogic.BoardSize" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BoardSize"></a><a id="BoardSize:BoardSize"></a>
+      <span class="permalink">
+      <a href="../draughtsLogic/index.html#BoardSize" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="BoardSize$.html"><span class="name">BoardSize</span></a><span class="result"> extends <span class="extype" name="scala.Enumeration">Enumeration</span></span>
+      </span>
+      
+      
+    </li><li name="draughtsLogic.Coord" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Coord"></a><a id="Coord:Coord"></a>
+      <span class="permalink">
+      <a href="../draughtsLogic/index.html#Coord" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Coord$.html"><span class="name">Coord</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="draughtsLogic.Difficulty" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Difficulty"></a><a id="Difficulty:Difficulty"></a>
+      <span class="permalink">
+      <a href="../draughtsLogic/index.html#Difficulty" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Difficulty$.html"><span class="name">Difficulty</span></a><span class="result"> extends <span class="extype" name="scala.Enumeration">Enumeration</span></span>
+      </span>
+      
+      
+    </li>
+              </ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+    </body>
+          </div>
+        </div>
+      </div>
+    </body>
+      </html>
