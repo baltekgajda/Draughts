@@ -1,7 +1,5 @@
 package draughtsLogic
 
-//TODO jak ja wygram to jest blad bo probuje zrobic drzewo ale nie moze bo nie ma pionkow
-//delete all pieces that are killed,
 import scala.annotation.tailrec
 
 case class Board(size: Int, treeDepth: Int) {
