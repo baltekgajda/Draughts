@@ -14,3 +14,5 @@ The player has red pieces; computer has black pieces. Players alternate turns. A
 A piece may move only diagonally into an unoccupied square. The player, who has no remaining pieces or cannot move due to being blocked, 
 loses the game.
 <!--Capturing containing maximum number of pieces is mandatory.-->
+## Documentation
+You can check out project's full documentation [here](https://baltekgajda.github.io/Draughts/)
